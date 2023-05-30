@@ -1,17 +1,34 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import EmojiPicker from "emoji-picker-react";
 import "./App.css";
 
 const App = () => {
+  const [posts, setPosts] = useState<string[]>([]);
+
   const handleSubmit = (formText: string) => {
-    alert(formText);
+    if (posts.length >= 10) {
+      setPosts([...posts.slice(1), formText]);
+    } else {
+      setPosts([...posts, formText]);
+    }
   };
+
+  const postBlocks = posts.map((post) => {
+    return <PostBlock content={post} />;
+  });
 
   return (
     <div>
+      <div>{postBlocks}</div>
       <ChatForm onSubmit={handleSubmit} />
     </div>
   );
+};
+
+const PostBlock: React.FC<{ content: string }> = (props: {
+  content: string;
+}) => {
+  return <div>{props.content}</div>;
 };
 
 const ChatForm = (props: { onSubmit: (formText: string) => void }) => {
@@ -22,8 +39,9 @@ const ChatForm = (props: { onSubmit: (formText: string) => void }) => {
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    props.onSubmit(formText);
     event.preventDefault();
+    props.onSubmit(formText);
+    setFormText("");
   };
 
   return (
@@ -31,7 +49,7 @@ const ChatForm = (props: { onSubmit: (formText: string) => void }) => {
       <label>
         <input
           type="text"
-          name="text"
+          value={formText}
           onChange={(event) => handleChange(event)}
         />
       </label>
