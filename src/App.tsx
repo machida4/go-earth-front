@@ -1,72 +1,43 @@
 import { useEffect, useState } from "react";
+import EmojiPicker from "emoji-picker-react";
 import "./App.css";
 
 const App = () => {
-  const [imageUrl, setImageUrl] = useState("");
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    fetchImage().then((newImage) => {
-      setImageUrl(newImage.url); // 画像urlの状態を更新
-      setLoading(false); // ローディング状態を更新
-    });
-  }, []);
-  const handleClick = async () => {
-    setLoading(true);
-    const newImage = await fetchImage();
-    setImageUrl(newImage.url);
-    setLoading(false);
+  const handleSubmit = (formText: string) => {
+    alert(formText);
   };
+
   return (
     <div>
-      <ChatForm />
-      <button onClick={handleClick}>他の猫ボタン</button>
-      <div>{loading || <img src={imageUrl} width="300" height="300" />}</div>
+      <ChatForm onSubmit={handleSubmit} />
     </div>
   );
 };
 
-const ChatForm = () => {
+const ChatForm = (props: { onSubmit: (formText: string) => void }) => {
   const [formText, setFormText] = useState("");
 
-  const onChange = (event: any) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFormText(event.target.value);
   };
-  const onSubmit = (event: any) => {
-    alert(formText);
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    props.onSubmit(formText);
     event.preventDefault();
   };
 
   return (
-    <form onSubmit={onSubmit}>
+    <form onSubmit={handleSubmit}>
       <label>
-        <input type="text" name="text" onChange={onChange} />
+        <input
+          type="text"
+          name="text"
+          onChange={(event) => handleChange(event)}
+        />
       </label>
       <input type="submit" value="Submit" />
     </form>
   );
-};
-
-type Image = {
-  url: string;
-};
-
-const fetchImage = async (): Promise<Image> => {
-  const res = await fetch("https://api.thecatapi.com/v1/images/search");
-  const images: unknown = await res.json();
-  if (!Array.isArray(images)) {
-    throw new Error("画像を取得できませんでした");
-  }
-  const image: unknown = images[0];
-  if (!isImage(image)) {
-  }
-  return images[0];
-};
-
-const isImage = (value: unknown): value is Image => {
-  if (!value || typeof value !== "object") {
-    return false;
-  }
-  return "url" in value && typeof value.url == "string";
 };
 
 export default App;
