@@ -18,9 +18,31 @@ const App = () => {
   };
   return (
     <div>
+      <ChatForm />
       <button onClick={handleClick}>他の猫ボタン</button>
       <div>{loading || <img src={imageUrl} width="300" height="300" />}</div>
     </div>
+  );
+};
+
+const ChatForm = () => {
+  const [formText, setFormText] = useState("");
+
+  const onChange = (event: any) => {
+    setFormText(event.target.value);
+  };
+  const onSubmit = (event: any) => {
+    alert(formText);
+    event.preventDefault();
+  };
+
+  return (
+    <form onSubmit={onSubmit}>
+      <label>
+        <input type="text" name="text" onChange={onChange} />
+      </label>
+      <input type="submit" value="Submit" />
+    </form>
   );
 };
 
