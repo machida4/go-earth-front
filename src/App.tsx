@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { Button, Modal } from "@mui/material";
+// import Modal from '@mui/material/modal';
 import EmojiPicker, {
   EmojiStyle,
   EmojiClickData,
@@ -53,6 +55,12 @@ const PostBlock = React.memo((props: { post: Post }) => {
 const ChatForm = (props: { onSubmit: (post: Post) => void }) => {
   const [emoji, setEmoji] = useState("");
   const [formText, setFormText] = useState("");
+  const [openModal, setOpenModal] =
+    useState<boolean>(true);
+
+  const handleEmojiClick = (open: boolean) => {
+    setOpenModal(open);
+  };
 
   const handleEmojiChange = useCallback((emoji: string) => {
     setEmoji(emoji);
@@ -70,10 +78,12 @@ const ChatForm = (props: { onSubmit: (post: Post) => void }) => {
   };
 
   const SelectedEmojiPreview = (
-    <div className="chat-form-element">
+    <div>
       {emoji !== "" ? (
         <div>
-          <Emoji unified={emoji} emojiStyle={EmojiStyle.TWITTER} size={22} />
+          <Button variant="outlined" onClick={() => setOpenModal(true)}>
+            <Emoji unified={emoji} emojiStyle={EmojiStyle.TWITTER} size={22} />
+          </Button>
         </div>
       ) : null}
     </div>
@@ -96,40 +106,51 @@ const ChatForm = (props: { onSubmit: (post: Post) => void }) => {
 
   return (
     <div>
-      <EmojiSelectBox onSetSelectedEmoji={handleEmojiChange} />
+        <EmojiSelectModal
+          open={openModal}
+          onClose={() => setOpenModal(false)}
+          onSetSelectedEmoji={handleEmojiChange}
+          onEmojiClick={handleEmojiClick}
+        />
       {SelectedEmojiPreview}
       {Form}
     </div>
   );
 };
 
-const EmojiSelectBox = React.memo(
-  (props: { onSetSelectedEmoji: (emoji: string) => void }) => {
-    const [selectedEmoji, setSelectedEmoji] = useState<string>("");
-    const [shouldShowEmojiPicker, setShouldShowEmojiPicker] =
-      useState<any>(true);
+const EmojiSelectModal = React.memo(
+  (props: {
+    open: boolean;
+    onClose: () => void;
+    onSetSelectedEmoji: (emoji: string) => void;
+    onEmojiClick: (open: boolean) => void;
+  }) => {
 
     const onEmojiClick = useCallback(
       (emojiClickData: EmojiClickData, _: MouseEvent) => {
-        setSelectedEmoji(emojiClickData.unified);
         props.onSetSelectedEmoji(emojiClickData.unified);
+        props.onEmojiClick(false);
       },
       []
     );
 
-    const handleClick = () => {
-      setShouldShowEmojiPicker(!shouldShowEmojiPicker);
-    };
+    const handleClose = () => props.onClose();
 
     return (
       <div>
-        {shouldShowEmojiPicker ? (
+        <Modal
+          open={props.open}
+          onClose={handleClose}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+          style={{display:'flex',alignItems:'center',justifyContent:'center'}}
+        >
           <EmojiPicker
             onEmojiClick={onEmojiClick}
             emojiStyle={EmojiStyle.TWITTER}
             skinTonesDisabled={true}
           />
-        ) : null}
+        </Modal>
       </div>
     );
   }
